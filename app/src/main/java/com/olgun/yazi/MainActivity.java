@@ -55,14 +55,37 @@ public class MainActivity extends Activity {
       if(t.trim().isEmpty()){toast("Metin girin");return;}
       String peer=lan.chosen();if(peer.isEmpty()){toast("Önce cihaz eşleştirin");lan.choose();return;}
       lan.send(peer,"play",t,this::toast);
-    }).setBackgroundColor(0xff388e3c);
+    }).setBackgroundColor(0xff81c784);
     button("Durdur",remote,()->{
       String peer=lan.chosen();if(peer.isEmpty()){toast("Cihaz seçin");return;}
       lan.send(peer,"stop","",this::toast);
     }).setBackgroundColor(0xffc62828);
-    LinearLayout speedRow=new LinearLayout(this);root.addView(speedRow,new LinearLayout.LayoutParams(-1,-2));
-    button("Yavaşlat",speedRow,()->remoteSpeed(-1)).setBackgroundColor(0xff607d8b);
-    button("Hızlandır",speedRow,()->remoteSpeed(1)).setBackgroundColor(0xff607d8b);
+    LinearLayout speedRow=new LinearLayout(this);speedRow.setOrientation(LinearLayout.HORIZONTAL);
+    speedRow.setGravity(Gravity.CENTER_VERTICAL);speedRow.setPadding(4,12,4,12);
+    root.addView(speedRow,new LinearLayout.LayoutParams(-1,-2));
+    TextView slowLabel=new TextView(this);slowLabel.setText("Yavaş");slowLabel.setTextColor(0xffc62828);
+    slowLabel.setTextSize(16);slowLabel.setTypeface(null,Typeface.BOLD);
+    speedRow.addView(slowLabel);
+    SeekBar speedSlider=new SeekBar(this);speedSlider.setMax(100);speedSlider.setProgress(50);
+    speedSlider.setProgressTintList(android.content.res.ColorStateList.valueOf(0xff333333));
+    speedSlider.setProgressBackgroundTintList(android.content.res.ColorStateList.valueOf(0xff333333));
+    speedSlider.setThumbTintList(android.content.res.ColorStateList.valueOf(0xff222222));
+    speedSlider.setElevation(5f);
+    LinearLayout.LayoutParams sliderParams=new LinearLayout.LayoutParams(0,-2,1);
+    sliderParams.setMargins(12,0,12,0);speedRow.addView(speedSlider,sliderParams);
+    TextView fastLabel=new TextView(this);fastLabel.setText("Hızlı");fastLabel.setTextColor(0xffc62828);
+    fastLabel.setTextSize(16);fastLabel.setTypeface(null,Typeface.BOLD);speedRow.addView(fastLabel);
+    speedSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+      long lastSent=0;
+      public void onStartTrackingTouch(SeekBar bar){}
+      public void onProgressChanged(SeekBar bar,int progress,boolean fromUser){
+        if(!fromUser)return;
+        remoteSpeedValue=0.3f+(progress/100f)*39.7f;
+        long now=android.os.SystemClock.elapsedRealtime();
+        if(now-lastSent>=120){lastSent=now;sendRemoteSpeed(false);}
+      }
+      public void onStopTrackingTouch(SeekBar bar){sendRemoteSpeed(true);}
+    });
     TextView title=new TextView(this);title.setText("Kaydedilen Yazılar");title.setTextSize(21);
     title.setTextColor(Color.BLACK);title.setPadding(0,24,0,12);root.addView(title);
     items=new LinearLayout(this);items.setOrientation(1);root.addView(items);
@@ -81,6 +104,7 @@ public class MainActivity extends Activity {
     page.addView(footer,new LinearLayout.LayoutParams(-1,-2));
   }
   float remoteSpeedValue=3f;
+  void sendRemoteSpeed(boolean showFeedback){String peer=lan.chosen();if(peer.isEmpty()){if(showFeedback)toast("Cihaz seçin");return;}lan.send(peer,"speed",String.valueOf(remoteSpeedValue),result->{if(showFeedback)toast(result);});}
   void remoteSpeed(int delta){String peer=lan.chosen();if(peer.isEmpty()){toast("Cihaz seçin");return;}remoteSpeedValue=Math.max(.3f,Math.min(40f,remoteSpeedValue+delta));lan.send(peer,"speed",String.valueOf(remoteSpeedValue),this::toast);}
   void setRemoteSpeed(float speed){if(activeMarquee!=null)activeMarquee.speed=Math.max(.3f,Math.min(40f,speed));}
   @Override protected void onDestroy(){if(lan!=null)lan.shutdown();super.onDestroy();}

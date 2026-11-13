@@ -55,11 +55,11 @@ public class MainActivity extends Activity {
     button("Oynat",controls,()->{
       String t=editor.getText().toString();if(t.trim().isEmpty()){toast("Metin girin");return;}
       hideKeyboard();startPlay(t);
-    }).setBackgroundColor(0xffd32f2f);
+    }).setBackgroundColor(0xff66bb6a);
     TextView del=button("Sil",controls,()->{
       if(selected<0||selected>=saved.size()){toast("Listeden yazı seçin");return;}
       confirmDelete(selected);
-    });del.setBackgroundColor(0xffffca28);del.setTextColor(Color.BLACK);
+    });del.setBackgroundColor(0xffef9a9a);del.setTextColor(Color.BLACK);
     TextView footer=new TextView(this);footer.setText("Muhammed Yusuf OLGUN");
     footer.setTextColor(0xffcccccc);footer.setTextSize(14);footer.setGravity(Gravity.CENTER);
     footer.setTypeface(null,Typeface.ITALIC);footer.setPadding(0,4,0,12);

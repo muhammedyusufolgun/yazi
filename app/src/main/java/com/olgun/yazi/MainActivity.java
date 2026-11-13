@@ -14,9 +14,9 @@ import java.util.*;
 
 public class MainActivity extends Activity {
   final int bg=Color.WHITE, red=Color.rgb(155,20,20);
-  EditText editor; LinearLayout root, items; android.content.SharedPreferences prefs;
+  EditText editor; LinearLayout root, items; LanLink lan; Marquee activeMarquee; android.content.SharedPreferences prefs;
   ArrayList<String> saved=new ArrayList<>(); int selected=-1; boolean playing=false;
-  @Override public void onCreate(Bundle b){super.onCreate(b);prefs=getSharedPreferences("texts",0);load();showEditor("");}
+  @Override public void onCreate(Bundle b){super.onCreate(b);prefs=getSharedPreferences("texts",0);load();lan=new LanLink(this);showEditor("");}
   void load(){saved.clear();try{JSONArray a=new JSONArray(prefs.getString("list","[]"));for(int i=0;i<a.length();i++)saved.add(a.getString(i));}catch(Exception ignored){}}
   void persist(){JSONArray a=new JSONArray();for(String s:saved)a.put(s);prefs.edit().putString("list",a.toString()).apply();}
   TextView button(String s,LinearLayout row,Runnable action){TextView v=new TextView(this);v.setText(s);v.setTextColor(Color.WHITE);v.setTextSize(17);v.setGravity(17);v.setPadding(18,20,18,20);v.setBackgroundColor(red);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,-2,1);p.setMargins(4,4,4,4);row.addView(v,p);v.setOnClickListener(w->action.run());return v;}
@@ -48,6 +48,21 @@ public class MainActivity extends Activity {
       if(selected<0||selected>=saved.size()){toast("Listeden yazı seçin");return;}
       confirmDelete(selected);
     });del.setBackgroundColor(0xffef9a9a);del.setTextColor(Color.BLACK);
+    LinearLayout remote=new LinearLayout(this);root.addView(remote,new LinearLayout.LayoutParams(-1,-2));
+    button("Cihaz",remote,()->lan.choose()).setBackgroundColor(0xff546e7a);
+    button("Gönder ve Oynat",remote,()->{
+      String t=editor.getText().toString();
+      if(t.trim().isEmpty()){toast("Metin girin");return;}
+      String peer=lan.chosen();if(peer.isEmpty()){toast("Önce cihaz eşleştirin");lan.choose();return;}
+      lan.send(peer,"play",t,this::toast);
+    }).setBackgroundColor(0xff388e3c);
+    button("Durdur",remote,()->{
+      String peer=lan.chosen();if(peer.isEmpty()){toast("Cihaz seçin");return;}
+      lan.send(peer,"stop","",this::toast);
+    }).setBackgroundColor(0xffc62828);
+    LinearLayout speedRow=new LinearLayout(this);root.addView(speedRow,new LinearLayout.LayoutParams(-1,-2));
+    button("Yavaşlat",speedRow,()->remoteSpeed(-1)).setBackgroundColor(0xff607d8b);
+    button("Hızlandır",speedRow,()->remoteSpeed(1)).setBackgroundColor(0xff607d8b);
     TextView title=new TextView(this);title.setText("Kaydedilen Yazılar");title.setTextSize(21);
     title.setTextColor(Color.BLACK);title.setPadding(0,24,0,12);root.addView(title);
     items=new LinearLayout(this);items.setOrientation(1);root.addView(items);
@@ -65,10 +80,14 @@ public class MainActivity extends Activity {
     footer.setTypeface(null,Typeface.ITALIC);footer.setPadding(0,4,0,144);
     page.addView(footer,new LinearLayout.LayoutParams(-1,-2));
   }
+  float remoteSpeedValue=3f;
+  void remoteSpeed(int delta){String peer=lan.chosen();if(peer.isEmpty()){toast("Cihaz seçin");return;}remoteSpeedValue=Math.max(.3f,Math.min(40f,remoteSpeedValue+delta));lan.send(peer,"speed",String.valueOf(remoteSpeedValue),this::toast);}
+  void setRemoteSpeed(float speed){if(activeMarquee!=null)activeMarquee.speed=Math.max(.3f,Math.min(40f,speed));}
+  @Override protected void onDestroy(){if(lan!=null)lan.shutdown();super.onDestroy();}
   void confirmDelete(int i){new AlertDialog.Builder(this).setTitle("Metni sil").setMessage("Bu kaydı silmek istiyor musunuz?").setNegativeButton("Vazgeç",null).setPositiveButton("Devam", (d,w)->new AlertDialog.Builder(this).setTitle("Son onay").setMessage("Bu kayıt kalıcı olarak silinecek. Onaylıyor musunuz?").setNegativeButton("İptal",null).setPositiveButton("Sil",(d2,w2)->{saved.remove(i);selected=-1;persist();showEditor("");}).show()).show();}
   void toast(String s){Toast.makeText(this,s,Toast.LENGTH_SHORT).show();}
   void hideKeyboard(){((InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editor.getWindowToken(),0);}
-  void startPlay(String t){playing=true;setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);getWindow().getDecorView().setSystemUiVisibility(5894|1024|512);setContentView(new Marquee(this,t));}
+  void startPlay(String t){playing=true;setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);getWindow().getDecorView().setSystemUiVisibility(5894|1024|512);activeMarquee=new Marquee(this,t);setContentView(activeMarquee);}
   class Marquee extends View {
     Paint paint=new Paint(3);String text;float x,speed=3f,lastY;long previous;boolean leftGesture=false;GestureDetector gestures;
     Marquee(Context c,String s){super(c);text=s.replace('\n',' ');setBackgroundColor(Color.BLACK);paint.setColor(red);paint.setTypeface(Typeface.create("sans-serif",Typeface.BOLD));gestures=new GestureDetector(c,new GestureDetector.SimpleOnGestureListener(){@Override public boolean onDoubleTap(MotionEvent e){runOnUiThread(()->showEditor(text));return true;}@Override public boolean onDown(MotionEvent e){return true;}});}

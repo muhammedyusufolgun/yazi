@@ -13,7 +13,7 @@ import org.json.*;
 import java.util.*;
 
 public class MainActivity extends Activity {
-  final int bg=Color.BLACK, red=Color.rgb(155,20,20);
+  final int bg=Color.WHITE, red=Color.rgb(155,20,20);
   EditText editor; LinearLayout root, items; android.content.SharedPreferences prefs;
   ArrayList<String> saved=new ArrayList<>(); int selected=-1; boolean playing=false;
   @Override public void onCreate(Bundle b){super.onCreate(b);prefs=getSharedPreferences("texts",0);load();showEditor("");}
@@ -29,25 +29,13 @@ public class MainActivity extends Activity {
     page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
     root=new LinearLayout(this);root.setOrientation(1);root.setPadding(0,72,0,0);scroll.addView(root);
     TextView heading=new TextView(this);heading.setText("Kayan Yazı");heading.setTextSize(26);
-    heading.setTextColor(0xffd32f2f);heading.setTypeface(null,Typeface.BOLD);root.addView(heading);heading.setOnClickListener(v->{editor.setText("");selected=-1;});
-    editor=new EditText(this);editor.setTextColor(Color.WHITE);editor.setHintTextColor(0xffbbbbbb);
+    heading.setTextColor(0xffd32f2f);heading.setGravity(Gravity.CENTER);heading.setTypeface(null,Typeface.BOLD);root.addView(heading);heading.setOnClickListener(v->{editor.setText("");selected=-1;});
+    editor=new EditText(this);editor.setTextColor(Color.BLACK);editor.setHintTextColor(0xff777777);
     editor.setHint("Metin yazın veya yapıştırın");editor.setTextSize(20);editor.setGravity(Gravity.TOP);
     editor.setMinLines(5);editor.setInputType(android.text.InputType.TYPE_CLASS_TEXT |
       android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE);
     editor.setText(value);root.addView(editor,new LinearLayout.LayoutParams(-1,-2));
-    TextView title=new TextView(this);title.setText("Kaydedilen Yazılar");title.setTextSize(21);
-    title.setTextColor(Color.WHITE);title.setPadding(0,24,0,12);root.addView(title);
-    items=new LinearLayout(this);items.setOrientation(1);root.addView(items);
-    for(int i=0;i<saved.size();i++){
-      final int idx=i;TextView entry=new TextView(this);
-      entry.setText((i+1)+". "+saved.get(i).replace("\\n"," "));
-      entry.setTextColor(Color.WHITE);entry.setTextSize(17);entry.setPadding(14,16,14,16);
-      entry.setSingleLine(true);entry.setEllipsize(android.text.TextUtils.TruncateAt.END);
-      entry.setBackgroundColor(selected==i?0xff1976d2:0xff444444);
-      LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.setMargins(0,2,0,2);
-      items.addView(entry,lp);entry.setOnClickListener(v->{selected=idx;showEditor(saved.get(idx));});
-    }
-    LinearLayout controls=new LinearLayout(this);page.addView(controls,new LinearLayout.LayoutParams(-1,-2));
+    LinearLayout controls=new LinearLayout(this);root.addView(controls,new LinearLayout.LayoutParams(-1,-2));
     button("Kaydet",controls,()->{
       String t=editor.getText().toString().trim();if(t.isEmpty()){toast("Metin girin");return;}
       saved.add(t);selected=saved.size()-1;persist();showEditor(t);toast("Kaydedildi");
@@ -60,9 +48,21 @@ public class MainActivity extends Activity {
       if(selected<0||selected>=saved.size()){toast("Listeden yazı seçin");return;}
       confirmDelete(selected);
     });del.setBackgroundColor(0xffef9a9a);del.setTextColor(Color.BLACK);
+    TextView title=new TextView(this);title.setText("Kaydedilen Yazılar");title.setTextSize(21);
+    title.setTextColor(Color.BLACK);title.setPadding(0,24,0,12);root.addView(title);
+    items=new LinearLayout(this);items.setOrientation(1);root.addView(items);
+    for(int i=0;i<saved.size();i++){
+      final int idx=i;TextView entry=new TextView(this);
+      entry.setText((i+1)+". "+saved.get(i).replace("\\n"," "));
+      entry.setTextColor(Color.BLACK);entry.setTextSize(17);entry.setPadding(14,16,14,16);
+      entry.setSingleLine(true);entry.setEllipsize(android.text.TextUtils.TruncateAt.END);
+      entry.setBackgroundColor(selected==i?0xffb3e5fc:0xffeeeeee);
+      LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.setMargins(0,2,0,2);
+      items.addView(entry,lp);entry.setOnClickListener(v->{selected=idx;showEditor(saved.get(idx));});
+    }
     TextView footer=new TextView(this);footer.setText("Muhammed Yusuf OLGUN");
-    footer.setTextColor(0xffcccccc);footer.setTextSize(14);footer.setGravity(Gravity.CENTER);
-    footer.setTypeface(null,Typeface.ITALIC);footer.setPadding(0,4,0,12);
+    footer.setTextColor(Color.BLACK);footer.setTextSize(14);footer.setGravity(Gravity.CENTER);
+    footer.setTypeface(null,Typeface.ITALIC);footer.setPadding(0,4,0,72);
     page.addView(footer,new LinearLayout.LayoutParams(-1,-2));
   }
   void confirmDelete(int i){new AlertDialog.Builder(this).setTitle("Metni sil").setMessage("Bu kaydı silmek istiyor musunuz?").setNegativeButton("Vazgeç",null).setPositiveButton("Devam", (d,w)->new AlertDialog.Builder(this).setTitle("Son onay").setMessage("Bu kayıt kalıcı olarak silinecek. Onaylıyor musunuz?").setNegativeButton("İptal",null).setPositiveButton("Sil",(d2,w2)->{saved.remove(i);selected=-1;persist();showEditor("");}).show()).show();}

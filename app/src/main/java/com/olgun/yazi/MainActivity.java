@@ -27,9 +27,9 @@ public class MainActivity extends Activity {
     page.setPadding(16,0,16,0);setContentView(page);
     ScrollView scroll=new ScrollView(this);scroll.setFillViewport(false);
     page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-    root=new LinearLayout(this);root.setOrientation(1);root.setPadding(0,72,0,0);scroll.addView(root);
+    root=new LinearLayout(this);root.setOrientation(1);root.setPadding(0,120,0,0);scroll.addView(root);
     TextView heading=new TextView(this);heading.setText("Kayan Yazı");heading.setTextSize(26);
-    heading.setTextColor(0xffd32f2f);heading.setGravity(Gravity.CENTER);heading.setTypeface(null,Typeface.BOLD);root.addView(heading);heading.setOnClickListener(v->{editor.setText("");selected=-1;});
+    heading.setTextColor(0xffd32f2f);heading.setGravity(Gravity.CENTER);heading.setTypeface(null,Typeface.BOLD);heading.setBackgroundColor(Color.BLACK);heading.setPadding(8,16,8,16);root.addView(heading,new LinearLayout.LayoutParams(-1,-2));heading.setOnClickListener(v->{editor.setText("");selected=-1;editor.clearFocus();});
     editor=new EditText(this);editor.setTextColor(Color.BLACK);editor.setHintTextColor(0xff777777);
     editor.setHint("Metin yazın veya yapıştırın");editor.setTextSize(20);editor.setGravity(Gravity.TOP);
     editor.setMinLines(5);editor.setInputType(android.text.InputType.TYPE_CLASS_TEXT |
@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
     }
     TextView footer=new TextView(this);footer.setText("Muhammed Yusuf OLGUN");
     footer.setTextColor(Color.BLACK);footer.setTextSize(14);footer.setGravity(Gravity.CENTER);
-    footer.setTypeface(null,Typeface.ITALIC);footer.setPadding(0,4,0,72);
+    footer.setTypeface(null,Typeface.ITALIC);footer.setPadding(0,4,0,120);
     page.addView(footer,new LinearLayout.LayoutParams(-1,-2));
   }
   void confirmDelete(int i){new AlertDialog.Builder(this).setTitle("Metni sil").setMessage("Bu kaydı silmek istiyor musunuz?").setNegativeButton("Vazgeç",null).setPositiveButton("Devam", (d,w)->new AlertDialog.Builder(this).setTitle("Son onay").setMessage("Bu kayıt kalıcı olarak silinecek. Onaylıyor musunuz?").setNegativeButton("İptal",null).setPositiveButton("Sil",(d2,w2)->{saved.remove(i);selected=-1;persist();showEditor("");}).show()).show();}

@@ -13,7 +13,7 @@ import org.json.*;
 import java.util.*;
 
 public class MainActivity extends Activity {
-  final int bg=Color.rgb(48,48,48), red=Color.rgb(155,20,20);
+  final int bg=Color.BLACK, red=Color.rgb(155,20,20);
   EditText editor; LinearLayout root, items; android.content.SharedPreferences prefs;
   ArrayList<String> saved=new ArrayList<>(); int selected=-1; boolean playing=false;
   @Override public void onCreate(Bundle b){super.onCreate(b);prefs=getSharedPreferences("texts",0);load();showEditor("");}
@@ -27,9 +27,9 @@ public class MainActivity extends Activity {
     page.setPadding(16,0,16,0);setContentView(page);
     ScrollView scroll=new ScrollView(this);scroll.setFillViewport(false);
     page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-    root=new LinearLayout(this);root.setOrientation(1);root.setPadding(0,48,0,0);scroll.addView(root);
-    TextView heading=new TextView(this);heading.setText("Metin");heading.setTextSize(26);
-    heading.setTextColor(Color.WHITE);heading.setTypeface(null,1);root.addView(heading);
+    root=new LinearLayout(this);root.setOrientation(1);root.setPadding(0,72,0,0);scroll.addView(root);
+    TextView heading=new TextView(this);heading.setText("Kayan Yazı");heading.setTextSize(26);
+    heading.setTextColor(0xffd32f2f);heading.setTypeface(null,Typeface.BOLD);root.addView(heading);heading.setOnClickListener(v->{editor.setText("");selected=-1;});
     editor=new EditText(this);editor.setTextColor(Color.WHITE);editor.setHintTextColor(0xffbbbbbb);
     editor.setHint("Metin yazın veya yapıştırın");editor.setTextSize(20);editor.setGravity(Gravity.TOP);
     editor.setMinLines(5);editor.setInputType(android.text.InputType.TYPE_CLASS_TEXT |
@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
       LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.setMargins(0,2,0,2);
       items.addView(entry,lp);entry.setOnClickListener(v->{selected=idx;showEditor(saved.get(idx));});
     }
-    LinearLayout controls=new LinearLayout(this);root.addView(controls);
+    LinearLayout controls=new LinearLayout(this);page.addView(controls,new LinearLayout.LayoutParams(-1,-2));
     button("Kaydet",controls,()->{
       String t=editor.getText().toString().trim();if(t.isEmpty()){toast("Metin girin");return;}
       saved.add(t);selected=saved.size()-1;persist();showEditor(t);toast("Kaydedildi");
@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
     });del.setBackgroundColor(0xffffca28);del.setTextColor(Color.BLACK);
     TextView footer=new TextView(this);footer.setText("Muhammed Yusuf OLGUN");
     footer.setTextColor(0xffcccccc);footer.setTextSize(14);footer.setGravity(Gravity.CENTER);
-    footer.setTypeface(null,Typeface.ITALIC);footer.setPadding(0,8,0,60);
+    footer.setTypeface(null,Typeface.ITALIC);footer.setPadding(0,4,0,12);
     page.addView(footer,new LinearLayout.LayoutParams(-1,-2));
   }
   void confirmDelete(int i){new AlertDialog.Builder(this).setTitle("Metni sil").setMessage("Bu kaydı silmek istiyor musunuz?").setNegativeButton("Vazgeç",null).setPositiveButton("Devam", (d,w)->new AlertDialog.Builder(this).setTitle("Son onay").setMessage("Bu kayıt kalıcı olarak silinecek. Onaylıyor musunuz?").setNegativeButton("İptal",null).setPositiveButton("Sil",(d2,w2)->{saved.remove(i);selected=-1;persist();showEditor("");}).show()).show();}

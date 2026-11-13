@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
     button("Oynat",controls,()->{
       String t=editor.getText().toString();if(t.trim().isEmpty()){toast("Metin girin");return;}
       hideKeyboard();startPlay(t);
-    }).setBackgroundColor(0xff66bb6a);
+    }).setBackgroundColor(0xff2e7d32);
     TextView del=button("Sil",controls,()->{
       if(selected<0||selected>=saved.size()){toast("Listeden yazı seçin");return;}
       confirmDelete(selected);
@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
     }
     TextView footer=new TextView(this);footer.setText("Muhammed Yusuf OLGUN");
     footer.setTextColor(Color.BLACK);footer.setTextSize(14);footer.setGravity(Gravity.CENTER);
-    footer.setTypeface(null,Typeface.ITALIC);footer.setPadding(0,4,0,120);
+    footer.setTypeface(null,Typeface.ITALIC);footer.setPadding(0,4,0,144);
     page.addView(footer,new LinearLayout.LayoutParams(-1,-2));
   }
   void confirmDelete(int i){new AlertDialog.Builder(this).setTitle("Metni sil").setMessage("Bu kaydı silmek istiyor musunuz?").setNegativeButton("Vazgeç",null).setPositiveButton("Devam", (d,w)->new AlertDialog.Builder(this).setTitle("Son onay").setMessage("Bu kayıt kalıcı olarak silinecek. Onaylıyor musunuz?").setNegativeButton("İptal",null).setPositiveButton("Sil",(d2,w2)->{saved.remove(i);selected=-1;persist();showEditor("");}).show()).show();}

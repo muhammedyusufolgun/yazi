@@ -22,6 +22,12 @@ jobs:
           test -n "$SDKMANAGER"
           yes | "$SDKMANAGER" --licenses || true
           "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Generate Yazı launcher icon
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq imagemagick fonts-dejavu-core
+          mkdir -p app/src/main/res/mipmap-xxxhdpi
+          convert -size 432x432 xc:'#303030' -fill '#D32F2F' -font DejaVu-Sans-Bold -pointsize 115 -gravity center -annotate +0+0 'Yazı' app/src/main/res/mipmap-xxxhdpi/icon.png
       - name: Build
         run: gradle --no-daemon assembleDebug
       - name: Rename
